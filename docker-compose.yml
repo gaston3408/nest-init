@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  # Servicio para la aplicación NestJS
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    volumes:
+      - .:/app  # Solo en desarrollo: mapea los archivos locales al contenedor
+    command: yarn start:dev  # Modo desarrollo: hot reload
+
+  # Servicio para MongoDB
+  mongo:
+    image: mongo:6.0
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_ROOT_USERNAME=myuser
+      - MONGO_ROOT_PASSWORD=mypassword
+      - MONGO_DATABASE=mydatabase
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
