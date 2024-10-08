@@ -1,7 +1,3 @@
-export class RegistrationAuthDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-}
+import { UserCreateDto } from 'src/user/dto/user-create.dto';
+
+export class RegistrationAuthDto extends UserCreateDto {}

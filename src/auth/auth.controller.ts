@@ -1,15 +1,15 @@
 import {
   Controller,
-  Get,
+  // Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  // Patch,
+  // Param,
+  // Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegistrationAuthDto } from './dto/registration-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+// import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,23 +20,23 @@ export class AuthController {
     return this.authService.register(registrationAuthDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.authService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.authService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
+  //   return this.authService.update(+id, updateAuthDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.authService.remove(+id);
+  // }
 }

@@ -1,27 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { RegistrationAuthDto } from './dto/registration-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/schemas/user';
 
 @Injectable()
 export class AuthService {
-  register(registrationAuthDto: RegistrationAuthDto) {
+  constructor(private userService: UserService) {}
+
+  async register(registrationAuthDto: RegistrationAuthDto): Promise<User> {
     console.log('register: ', registrationAuthDto);
-    return 'This action register a new user';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return await this.userService.create(registrationAuthDto);
   }
 }
