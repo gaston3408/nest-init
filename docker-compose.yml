@@ -23,11 +23,6 @@ services:
     container_name: mongo-db
     ports:
       - "27017:27017"
-    environment:
-      - MONGODB_ROOT_PASSWORD=mypassword
-      - MONGODB_USERNAME=myuser
-      - MONGODB_PASSWORD=mypassword
-      - MONGODB_DATABASE=mydatabase
     volumes:
       - mongo_data:/data/db
     networks:

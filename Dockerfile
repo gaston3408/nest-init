@@ -6,6 +6,7 @@ WORKDIR /app
 
 # 3. Copiamos el package.json y el package-lock.json (o yarn.lock si usas Yarn)
 COPY package*.json ./
+COPY yarn.lock ./
 
 # 4. Instalamos las dependencias
 RUN yarn install
