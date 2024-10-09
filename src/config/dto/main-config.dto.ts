@@ -1,4 +1,5 @@
 interface MainConfigDto {
+  env: string;
   db: {
     host: string;
     port: number;
@@ -6,7 +7,6 @@ interface MainConfigDto {
     password: string;
     database: string;
     driver: string;
-    provider: string;
   };
   web: {
     url: string;

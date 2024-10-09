@@ -10,23 +10,32 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      - mongo
+      - mongo-db
     volumes:
       - .:/app  # Solo en desarrollo: mapea los archivos locales al contenedor
     command: yarn start:dev  # Modo desarrollo: hot reload
+    networks:
+      - app-network
 
   # Servicio para MongoDB
-  mongo:
+  mongo-db:
     image: mongo:6.0
     container_name: mongo-db
     ports:
       - "27017:27017"
     environment:
-      - MONGO_ROOT_USERNAME=myuser
-      - MONGO_ROOT_PASSWORD=mypassword
-      - MONGO_DATABASE=mydatabase
+      - MONGODB_ROOT_PASSWORD=mypassword
+      - MONGODB_USERNAME=myuser
+      - MONGODB_PASSWORD=mypassword
+      - MONGODB_DATABASE=mydatabase
     volumes:
       - mongo_data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   mongo_data:

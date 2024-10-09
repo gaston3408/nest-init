@@ -8,7 +8,6 @@ export class AuthService {
   constructor(private userService: UserService) {}
 
   async register(registrationAuthDto: RegistrationAuthDto): Promise<User> {
-    console.log('register: ', registrationAuthDto);
     return await this.userService.create(registrationAuthDto);
   }
 }

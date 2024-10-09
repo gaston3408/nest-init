@@ -7,6 +7,7 @@ class MainConfigService {
   constructor(private readonly configService: ConfigService) {}
   get(): MainConfigDto {
     return {
+      env: this.configService.get('NODE_ENV'),
       db: {
         host: this.configService.get<string>('DB_HOST'),
         port: this.configService.get<number>('DB_PORT'),
@@ -14,7 +15,6 @@ class MainConfigService {
         password: this.configService.get<string>('DB_PASSWORD'),
         database: this.configService.get<string>('DB_DATABASE'),
         driver: this.configService.get<string>('DB_DRIVER'),
-        provider: this.configService.get<string>('DB_CONNECTION'),
       },
       web: {
         url: this.configService.get<string>('URL_WEB'),
