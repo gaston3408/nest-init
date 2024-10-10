@@ -3,11 +3,14 @@ import { UserCreateDto } from './dto/user-create.dto';
 import { User, UserDocument } from './schemas/user';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EncryptionService } from 'src/shared/encryption/encryption.service';
+import { HashEncryptionService } from 'src/shared/encryption/hash-encryption.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>, private encryptionService: EncryptionService) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private encryptionService: HashEncryptionService,
+  ) {}
 
   async create(payload: UserCreateDto): Promise<User> {
     const user = {
