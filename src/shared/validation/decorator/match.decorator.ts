@@ -12,8 +12,8 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
       target: object.constructor,
       propertyName,
       options: {
-        ...validationOptions,
         message: `${property} must be equal to ${propertyName}`,
+        ...validationOptions,
       },
       constraints: [property],
       validator: MatchConstraint,

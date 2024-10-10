@@ -4,7 +4,7 @@ import { v4 as idv4 } from 'uuid';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ type: String, default: idv4 })
   _id: string;
