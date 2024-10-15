@@ -19,6 +19,11 @@ class MainConfigService {
       web: {
         url: this.configService.get<string>('URL_WEB'),
       },
+      jwt: {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days,
+        algorithm: 'HS256',
+      },
     };
   }
 }

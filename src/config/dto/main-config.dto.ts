@@ -11,6 +11,11 @@ interface MainConfigDto {
   web: {
     url: string;
   };
+  jwt: {
+    secret: string;
+    expiresIn: number;
+    algorithm: string;
+  };
 }
 
 export default MainConfigDto;

@@ -20,4 +20,8 @@ export class UserService {
 
     return new this.userModel(user).save();
   }
+
+  async getByEmail(email: string): Promise<User> {
+    return this.userModel.findOne({ email });
+  }
 }
