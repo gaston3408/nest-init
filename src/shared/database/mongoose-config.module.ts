@@ -1,14 +1,9 @@
 import { MongooseModule, MongooseModuleFactoryOptions } from '@nestjs/mongoose';
-import { MainConfigModule } from 'src/config/main-config.module';
-import MainConfigService from 'src/config/main-config.service';
+import { Config } from 'src/config';
 
 export const MongooseConfigModule = MongooseModule.forRootAsync({
-  imports: [MainConfigModule],
-  inject: [MainConfigService],
-  useFactory: (
-    mainConfigService: MainConfigService,
-  ): MongooseModuleFactoryOptions => {
-    const { env, db } = mainConfigService.get();
+  useFactory: (): MongooseModuleFactoryOptions => {
+    const { env, db } = Config.get();
 
     const uri = `${db.driver}://${db.host}:${db.port}/${db.database}?authSource=admin`;
 

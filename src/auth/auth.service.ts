@@ -9,14 +9,14 @@ import { User } from 'src/user/schemas/user';
 import { LoginDto } from './dto/login.dto';
 import { HashEncryptionService } from 'src/shared/encryption/hash-encryption.service';
 import * as jwt from 'jsonwebtoken';
-import MainConfigService from 'src/config/main-config.service';
+import { GoogleClient } from 'src/shared/google/google-client';
+import { Config } from 'src/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly encryptionService: HashEncryptionService,
-    private readonly mainConfigService: MainConfigService,
   ) {}
 
   async register(payload: RegistrationDto): Promise<User> {
@@ -38,13 +38,49 @@ export class AuthService {
 
     const token = await this.generateToken(user);
 
-    return { token };
+    return {
+      token,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    };
+  }
+
+  async loginGoogle(googleToken: string): Promise<any> {
+    const googleClient = GoogleClient.getInstance();
+
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: googleToken,
+        audience: Config.get().auth.googleId,
+      });
+      const authUser = ticket.getPayload();
+      console.log('ticket payload: ', authUser);
+    } catch (error) {
+      console.error('Google OAuth verification failed: ', error);
+      throw new UnauthorizedException();
+    }
+
+    const mockUser: Partial<User> = {
+      _id: 'google-user-id',
+      firstName: 'Mock',
+      lastName: 'User',
+      email: 'mock-user@example.com',
+    };
+
+    return {
+      token: await this.generateToken(mockUser as User),
+      user: mockUser,
+    };
   }
 
   private async generateToken(user: User): Promise<string> {
     // Generate JWT token here
-    const secret = this.mainConfigService.get().jwt.secret;
-    const exp = this.mainConfigService.get().jwt.expiresIn;
+    const secret = Config.get().jwt.secret;
+    const exp = Config.get().jwt.expiresIn;
     const data = {
       id: user._id,
       email: user.email,

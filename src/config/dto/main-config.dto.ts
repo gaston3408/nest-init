@@ -16,6 +16,10 @@ interface MainConfigDto {
     expiresIn: number;
     algorithm: string;
   };
+  auth: {
+    googleId: string;
+    googleSecret: string;
+  };
 }
 
 export default MainConfigDto;
