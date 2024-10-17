@@ -15,7 +15,9 @@ export class UserService {
   async create(payload: UserCreateDto): Promise<User> {
     const user = {
       ...payload,
-      password: await this.encryptionService.hash(payload.password),
+      password: payload.password
+        ? await this.encryptionService.hash(payload.password)
+        : null,
     };
 
     return new this.userModel(user).save();

@@ -11,6 +11,8 @@ import { HashEncryptionService } from 'src/shared/encryption/hash-encryption.ser
 import * as jwt from 'jsonwebtoken';
 import { GoogleClient } from 'src/shared/google/google-client';
 import { Config } from 'src/config';
+import { TokenPayload } from 'google-auth-library';
+import { LoginGoogleDto } from './dto/login-google.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +21,15 @@ export class AuthService {
     private readonly encryptionService: HashEncryptionService,
   ) {}
 
-  async register(payload: RegistrationDto): Promise<User> {
-    return await this.userService.create(payload);
+  async register(payload: RegistrationDto): Promise<any> {
+    const user = await this.userService.create(payload);
+
+    return {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
   }
 
   async login(payload: LoginDto): Promise<any> {
@@ -36,10 +45,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const token = await this.generateToken(user);
-
     return {
-      token,
+      token: await this.generateToken(user),
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -49,38 +56,50 @@ export class AuthService {
     };
   }
 
-  async loginGoogle(googleToken: string): Promise<any> {
+  async loginGoogle(payload: LoginGoogleDto): Promise<any> {
     const googleClient = GoogleClient.getInstance();
 
     try {
       const ticket = await googleClient.verifyIdToken({
-        idToken: googleToken,
+        idToken: payload.googleToken,
         audience: Config.get().auth.googleId,
       });
-      const authUser = ticket.getPayload();
-      console.log('ticket payload: ', authUser);
+
+      const googleAuth: TokenPayload = ticket.getPayload();
+
+      let user: User = await this.userService.getByEmail(
+        googleAuth.email.toLowerCase(),
+      );
+
+      if (!user) {
+        const newUser: RegistrationDto = {
+          firstName: googleAuth.given_name,
+          lastName: googleAuth.family_name,
+          email: googleAuth.email.toLowerCase(),
+        };
+
+        user = await this.userService.create(newUser);
+      }
+
+      return {
+        token: await this.generateToken(user),
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      };
     } catch (error) {
       console.error('Google OAuth verification failed: ', error);
       throw new UnauthorizedException();
     }
-
-    const mockUser: Partial<User> = {
-      _id: 'google-user-id',
-      firstName: 'Mock',
-      lastName: 'User',
-      email: 'mock-user@example.com',
-    };
-
-    return {
-      token: await this.generateToken(mockUser as User),
-      user: mockUser,
-    };
   }
 
   private async generateToken(user: User): Promise<string> {
-    // Generate JWT token here
     const secret = Config.get().jwt.secret;
     const exp = Config.get().jwt.expiresIn;
+    const algorithm = Config.get().jwt.algorithm;
     const data = {
       id: user._id,
       email: user.email,
@@ -91,6 +110,6 @@ export class AuthService {
       iat: Math.floor(Date.now() / 1000),
       exp,
     };
-    return jwt.sign(data, secret, { algorithm: 'HS256' });
+    return jwt.sign(data, secret, { algorithm });
   }
 }

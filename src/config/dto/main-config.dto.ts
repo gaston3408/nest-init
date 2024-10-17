@@ -14,7 +14,7 @@ interface MainConfigDto {
   jwt: {
     secret: string;
     expiresIn: number;
-    algorithm: string;
+    algorithm: 'HS256';
   };
   auth: {
     googleId: string;

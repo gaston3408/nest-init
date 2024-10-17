@@ -2,6 +2,7 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegistrationDto } from './dto/registration.dto';
 import { LoginDto } from './dto/login.dto';
+import { LoginGoogleDto } from './dto/login-google.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -13,13 +14,13 @@ export class AuthController {
   }
 
   @Post('/login')
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(@Body() body: LoginDto) {
+    return this.authService.login(body);
   }
 
   @Post('/login/google')
-  loginGoogle(@Body('googleToken') googleToken: string) {
-    return this.authService.loginGoogle(googleToken);
+  loginGoogle(@Body() body: LoginGoogleDto) {
+    return this.authService.loginGoogle(body);
   }
 
   // @Get()

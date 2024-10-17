@@ -14,9 +14,9 @@ export class UserCreateDto {
 
   @IsString()
   @Matches(/.{8,}/, { message: 'Password must be at least 8 characters long' })
-  password: string;
+  password?: string;
 
   @IsString()
   @Match('password')
-  passwordConfirmation: string;
+  passwordConfirmation?: string;
 }
