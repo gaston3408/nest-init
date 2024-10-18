@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -7,21 +9,30 @@ import { RegistrationDto } from './dto/registration.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/schemas/user';
 import { LoginDto } from './dto/login.dto';
-import { HashEncryptionService } from 'src/shared/encryption/hash-encryption.service';
 import * as jwt from 'jsonwebtoken';
 import { GoogleClient } from 'src/shared/google/google-client';
 import { Config } from 'src/config';
 import { TokenPayload } from 'google-auth-library';
 import { LoginGoogleDto } from './dto/login-google.dto';
+import { AuthDto } from './dto/auth.dto';
+import { SERVICES } from 'src/config/constants/services';
+import { IEncryptionService } from 'src/shared/interfaces/encryption.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly encryptionService: HashEncryptionService,
+    @Inject(SERVICES.IEncryptionService)
+    private readonly encryptionService: IEncryptionService,
   ) {}
 
-  async register(payload: RegistrationDto): Promise<any> {
+  async register(payload: RegistrationDto): Promise<Partial<User>> {
+    const existUser = await this.userService.getByEmail(payload.email);
+
+    if (existUser) {
+      throw new BadRequestException('Email already exists');
+    }
+
     const user = await this.userService.create(payload);
 
     return {
@@ -32,7 +43,7 @@ export class AuthService {
     };
   }
 
-  async login(payload: LoginDto): Promise<any> {
+  async login(payload: LoginDto): Promise<AuthDto> {
     const user = await this.userService.getByEmail(payload.email);
 
     if (!user) {
@@ -48,7 +59,7 @@ export class AuthService {
     return {
       token: await this.generateToken(user),
       user: {
-        id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -56,7 +67,7 @@ export class AuthService {
     };
   }
 
-  async loginGoogle(payload: LoginGoogleDto): Promise<any> {
+  async loginGoogle(payload: LoginGoogleDto): Promise<AuthDto> {
     const googleClient = GoogleClient.getInstance();
 
     try {
@@ -84,7 +95,7 @@ export class AuthService {
       return {
         token: await this.generateToken(user),
         user: {
-          id: user._id,
+          _id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
