@@ -26,21 +26,14 @@ export class AuthService {
     private readonly encryptionService: IEncryptionService,
   ) {}
 
-  async register(payload: RegistrationDto): Promise<Partial<User>> {
+  async register(payload: RegistrationDto): Promise<User> {
     const existUser = await this.userService.getByEmail(payload.email);
 
     if (existUser) {
       throw new BadRequestException('Email already exists');
     }
 
-    const user = await this.userService.create(payload);
-
-    return {
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    };
+    return await this.userService.create(payload);
   }
 
   async login(payload: LoginDto): Promise<AuthDto> {
@@ -58,12 +51,7 @@ export class AuthService {
 
     return {
       token: await this.generateToken(user),
-      user: {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
+      user,
     };
   }
 
@@ -94,12 +82,7 @@ export class AuthService {
 
       return {
         token: await this.generateToken(user),
-        user: {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
+        user,
       };
     } catch (error) {
       console.error('Google OAuth verification failed: ', error);
