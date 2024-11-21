@@ -12,7 +12,6 @@ import { LoginDto } from './dto/login.dto';
 import * as jwt from 'jsonwebtoken';
 import { GoogleClient } from 'src/shared/google/google-client';
 import { Config } from 'src/config';
-import { TokenPayload } from 'google-auth-library';
 import { LoginGoogleDto } from './dto/login-google.dto';
 import { AuthDto } from './dto/auth.dto';
 import { SERVICES } from 'src/config/constants/services';
@@ -65,40 +64,26 @@ export class AuthService {
   }
 
   async loginGoogle(payload: LoginGoogleDto): Promise<AuthDto> {
-    const googleClient = GoogleClient.getInstance();
+    const googleAuth = await GoogleClient.getAuth(payload.googleToken);
 
-    try {
-      // TODO: MOVE THIS TO ANOTHER PLACE. **START**
-      const ticket = await googleClient.verifyIdToken({
-        idToken: payload.googleToken,
-        audience: Config.get().auth.googleId,
-      });
+    let user: User = await this.userService.getByEmail(
+      googleAuth.email.toLowerCase(),
+    );
 
-      const googleAuth: TokenPayload = ticket.getPayload();
-      // TODO: MOVE THIS TO ANOTHER PLACE. **FINISH**
-
-      let user: User = await this.userService.getByEmail(
-        googleAuth.email.toLowerCase(),
-      );
-
-      if (!user) {
-        const newUser: UserCreateDto = {
-          firstName: googleAuth.given_name,
-          lastName: googleAuth.family_name,
-          email: googleAuth.email.toLowerCase(),
-        };
-
-        user = await this.userService.create(newUser);
-      }
-
-      return {
-        token: await this.generateToken(user),
-        user,
+    if (!user) {
+      const newUser: UserCreateDto = {
+        firstName: googleAuth.given_name,
+        lastName: googleAuth.family_name,
+        email: googleAuth.email.toLowerCase(),
       };
-    } catch (error) {
-      console.error('Google OAuth verification failed: ', error);
-      throw new UnauthorizedException();
+
+      user = await this.userService.create(newUser);
     }
+
+    return {
+      token: await this.generateToken(user),
+      user,
+    };
   }
 
   private async generateToken(user: User): Promise<string> {
