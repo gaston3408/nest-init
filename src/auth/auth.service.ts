@@ -59,12 +59,14 @@ export class AuthService {
     const googleClient = GoogleClient.getInstance();
 
     try {
+      // TODO: MOVE THIS TO ANOTHER PLACE. **START**
       const ticket = await googleClient.verifyIdToken({
         idToken: payload.googleToken,
         audience: Config.get().auth.googleId,
       });
 
       const googleAuth: TokenPayload = ticket.getPayload();
+      // TODO: MOVE THIS TO ANOTHER PLACE. **FINISH**
 
       let user: User = await this.userService.getByEmail(
         googleAuth.email.toLowerCase(),
