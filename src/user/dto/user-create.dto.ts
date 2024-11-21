@@ -1,5 +1,4 @@
-import { IsEmail, IsString, Matches } from 'class-validator';
-import { Match } from '../../shared/validation/decorator/match.decorator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class UserCreateDto {
   @IsString()
@@ -13,10 +12,5 @@ export class UserCreateDto {
   email: string;
 
   @IsString()
-  @Matches(/.{8,}/, { message: 'Password must be at least 8 characters long' })
   password?: string;
-
-  @IsString()
-  @Match('password')
-  passwordConfirmation?: string;
 }

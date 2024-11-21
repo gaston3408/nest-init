@@ -17,6 +17,7 @@ import { LoginGoogleDto } from './dto/login-google.dto';
 import { AuthDto } from './dto/auth.dto';
 import { SERVICES } from 'src/config/constants/services';
 import { IEncryptionService } from 'src/shared/interfaces/encryption.interface';
+import { UserCreateDto } from 'src/user/dto/user-create.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,15 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    return await this.userService.create(payload);
+    const user: UserCreateDto = {
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      email: payload.email,
+      password: payload.password
+        ? await this.encryptionService.hash(payload.password)
+        : null,
+    };
+    return await this.userService.create(user);
   }
 
   async login(payload: LoginDto): Promise<AuthDto> {
@@ -73,7 +82,7 @@ export class AuthService {
       );
 
       if (!user) {
-        const newUser: RegistrationDto = {
+        const newUser: UserCreateDto = {
           firstName: googleAuth.given_name,
           lastName: googleAuth.family_name,
           email: googleAuth.email.toLowerCase(),
